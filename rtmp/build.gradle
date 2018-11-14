@@ -27,7 +27,7 @@ android {
              */
             stl "stlport_static"
             moduleName "rtmp"
-            abiFilters "armeabi-v7a", "x86"
+            abiFilters "armeabi-v7a"
         }
     }
     externalNativeBuild {

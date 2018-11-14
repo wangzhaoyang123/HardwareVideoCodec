@@ -11,7 +11,7 @@ MY_CPP_LIST += $(wildcard $(LOCAL_PATH)/*.cpp)
 LOCAL_SRC_FILES := $(MY_CPP_LIST:$(LOCAL_PATH)/%=%)
 
 # 打印引入的C文件列表
-$(warning $(LOCAL_SRC_FILES))
+#$(warning $(LOCAL_SRC_FILES))
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/librtmp
