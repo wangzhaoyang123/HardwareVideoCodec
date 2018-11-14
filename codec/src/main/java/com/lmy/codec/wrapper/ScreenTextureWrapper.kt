@@ -4,11 +4,12 @@
  * This source code is licensed under the GPL license found in the
  * LICENSE file in the root directory of this source tree.
  */
-package com.lmy.codec.egl
+package com.lmy.codec.wrapper
 
 import android.graphics.SurfaceTexture
 import android.opengl.EGLContext
 import com.lmy.codec.entity.CodecContext
+import com.lmy.codec.entity.Egl
 import com.lmy.codec.texture.impl.NormalTexture
 import com.lmy.codec.util.debug_e
 
@@ -16,18 +17,25 @@ import com.lmy.codec.util.debug_e
 /**
  * Created by lmyooyo@gmail.com on 2018/3/26.
  */
-class ScreenEglSurface private constructor(eglContext: EGLContext?,
-                                           surface: SurfaceTexture,
-                                           override var textureId: IntArray?) : EglOutputSurface() {
-    override val name = "Screen"
+class ScreenTextureWrapper(override var surfaceTexture: SurfaceTexture? = null,
+                           override var textureId: IntArray?,
+                           var eglContext: EGLContext? = null) : TextureWrapper() {
 
     init {
-        if (null == textureId)
-            throw RuntimeException("textureId can not be null")
-        createEgl(surface, eglContext)
-        makeCurrent()
-        texture = NormalTexture(textureId!!).apply {
-            name = "ScreenTexture"
+        if (null != surfaceTexture) {
+            egl = Egl("Screen")
+            egl!!.initEGL(surfaceTexture!!, eglContext)
+            if (null == eglContext) {
+                eglContext = egl!!.eglContext
+            }
+            egl!!.makeCurrent()
+            if (null == textureId)
+                throw RuntimeException("textureId can not be null")
+            texture = NormalTexture(textureId!!).apply {
+                name = "Screen Texture"
+            }
+        } else {
+            debug_e("Egl create failed")
         }
     }
 
@@ -73,10 +81,5 @@ class ScreenEglSurface private constructor(eglContext: EGLContext?,
                 0f, 1f, //LEFT,TOP
                 1f, 1f//RIGHT,TOP
         ), 0, textureLocation, 0, 8)
-    }
-
-    companion object {
-        fun create(surface: SurfaceTexture, textureId: IntArray?,
-                   eglContext: EGLContext?): ScreenEglSurface = ScreenEglSurface(eglContext, surface, textureId)
     }
 }

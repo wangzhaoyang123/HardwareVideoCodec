@@ -11,13 +11,12 @@ import android.media.MediaCodec
 import android.media.MediaFormat
 import android.opengl.EGLContext
 import android.opengl.GLES20
-import com.lmy.codec.egl.CodecEglSurface
-import com.lmy.codec.egl.EglInputSurface
 import com.lmy.codec.encoder.Encoder
 import com.lmy.codec.entity.CodecContext
 import com.lmy.codec.entity.PresentationTimer
 import com.lmy.codec.helper.CodecHelper
 import com.lmy.codec.util.debug_e
+import com.lmy.codec.wrapper.CodecTextureWrapper
 import com.lmy.codec.x264.CacheX264Encoder
 import com.lmy.codec.x264.SurfaceX264Encoder
 import java.nio.ByteBuffer
@@ -26,7 +25,7 @@ class SoftVideoEncoderV2Impl(var context: CodecContext,
                              private val textureId: IntArray,
                              private var eglContext: EGLContext,
                              override var onPreparedListener: Encoder.OnPreparedListener? = null,
-                             var eglSurface: EglInputSurface? = null,
+                             var codecWrapper: CodecTextureWrapper? = null,
                              var codec: SurfaceX264Encoder? = null,
                              private var pTimer: PresentationTimer = PresentationTimer(context.video.fps),
                              override var onRecordListener: Encoder.OnRecordListener? = null)
@@ -58,7 +57,7 @@ class SoftVideoEncoderV2Impl(var context: CodecContext,
 
     init {
         initCodec()
-        eglSurface = CodecEglSurface.create(codec!!.surface, textureId, eglContext)
+        codecWrapper = CodecTextureWrapper(codec!!.surface, textureId, eglContext)
         pTimer.reset()
         inited = true
     }
@@ -92,8 +91,8 @@ class SoftVideoEncoderV2Impl(var context: CodecContext,
         pause()
         debug_e("Video encoder stopping")
         codec?.release()
-        eglSurface?.release()
-        eglSurface = null
+        codecWrapper?.release()
+        codecWrapper = null
         debug_e("Video encoder stop")
     }
 
@@ -104,12 +103,12 @@ class SoftVideoEncoderV2Impl(var context: CodecContext,
     override fun onFrameAvailable(surfaceTexture: SurfaceTexture?) {
         synchronized(mEncodingSyn) {
             if (mEncoding && inited) {
-                eglSurface?.makeCurrent()
+                codecWrapper?.egl?.makeCurrent()
                 GLES20.glViewport(0, 0, context.video.width, context.video.height)
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
                 GLES20.glClearColor(0.3f, 0.3f, 0.3f, 0f)
-                eglSurface?.draw(null)
-                eglSurface?.swapBuffers()
+                codecWrapper?.draw(null)
+                codecWrapper?.egl?.swapBuffers()
             }
         }
     }

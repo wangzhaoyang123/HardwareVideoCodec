@@ -4,11 +4,10 @@
  * This source code is licensed under the GPL license found in the
  * LICENSE file in the root directory of this source tree.
  */
-package com.lmy.codec.media
+package com.lmy.codec.wrapper
 
 import android.graphics.SurfaceTexture
 import android.hardware.Camera
-import com.lmy.codec.egl.CameraEglSurface
 import com.lmy.codec.entity.CodecContext
 import com.lmy.codec.helper.CameraHelper
 import com.lmy.codec.pipeline.impl.GLEventPipeline
@@ -33,11 +32,11 @@ class CameraWrapper(private var context: CodecContext,
     private var mCamera: Camera? = null
     private var mCameras = 0
     private var mCameraIndex: CameraIndex? = null
-    val eglSurface: CameraEglSurface
+    val textureWrapper: CameraTextureWrapper
 
     init {
         mCameras = CameraHelper.getNumberOfCameras()
-        eglSurface = CameraEglSurface.create(context.video.width, context.video.height) as CameraEglSurface
+        textureWrapper = CameraTextureWrapper(context.video.width, context.video.height)
         openCamera(context.cameraIndex)
     }
 
@@ -64,14 +63,14 @@ class CameraWrapper(private var context: CodecContext,
             stopPreview()
             updateTexture()
             prepare()
-            eglSurface.updateLocation(context)
+            textureWrapper.updateLocation(context)
             startPreview()
         })
     }
 
     private fun updateTexture() {
-        eglSurface.updateTexture()
-        eglSurface.surface!!.setOnFrameAvailableListener(onFrameAvailableListener)
+        textureWrapper.updateTexture()
+        textureWrapper.surfaceTexture!!.setOnFrameAvailableListener(onFrameAvailableListener)
     }
 
     private fun getCameraIndex(): Int {
@@ -152,7 +151,7 @@ class CameraWrapper(private var context: CodecContext,
             return
         }
         try {
-            mCamera!!.setPreviewTexture(eglSurface.surface)
+            mCamera!!.setPreviewTexture(textureWrapper.surfaceTexture)
             mCamera!!.startPreview()
         } catch (e: Exception) {
             release()
@@ -176,7 +175,7 @@ class CameraWrapper(private var context: CodecContext,
     }
 
     private fun releaseTexture() {
-        eglSurface.release()
+        textureWrapper.release()
         debug_i("releaseTexture")
     }
 }

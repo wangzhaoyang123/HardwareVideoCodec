@@ -9,7 +9,8 @@ package com.lmy.codec.presenter
 import android.graphics.SurfaceTexture
 import android.view.TextureView
 import com.lmy.codec.encoder.Encoder
-import com.lmy.codec.media.CameraWrapper
+import com.lmy.codec.texture.impl.filter.BaseFilter
+import com.lmy.codec.wrapper.CameraWrapper
 
 /**
  * Created by lmyooyo@gmail.com on 2018/8/9.

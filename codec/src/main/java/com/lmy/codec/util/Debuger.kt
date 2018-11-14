@@ -7,7 +7,6 @@
 package com.lmy.codec.util
 
 import android.util.Log
-import com.lmy.codec.BuildConfig
 import java.util.*
 
 /**
@@ -65,6 +64,6 @@ inline fun <reified T> T.debug_e(vararg objects: Any?) {
 
 class Debuger {
     companion object {
-        var Debug = BuildConfig.ENABLE_LOG
+        var Debug = true
     }
 }

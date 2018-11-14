@@ -30,6 +30,7 @@ abstract class BaseFilter(width: Int = 0,
     }
 
     open fun active(samplerLocation: Int) {
+
         GLES20.glUseProgram(shaderProgram!!)
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffer[0])
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
@@ -42,10 +43,13 @@ abstract class BaseFilter(width: Int = 0,
     }
 
     fun inactive() {
+
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, GLES20.GL_NONE)
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, GLES20.GL_NONE)
         GLES20.glUseProgram(GLES20.GL_NONE)
+        //wang test
         GLES20.glFlush()
+       // GLES20.glFinish()
     }
 
 

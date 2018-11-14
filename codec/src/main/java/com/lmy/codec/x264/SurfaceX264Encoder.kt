@@ -7,6 +7,7 @@ import android.media.MediaFormat
 import android.view.Surface
 import com.lmy.codec.entity.RecycleQueue
 import com.lmy.codec.helper.GLHelper
+import com.lmy.codec.helper.GLHelper.memcpy
 import com.lmy.codec.helper.Libyuv
 import com.lmy.codec.pipeline.Pipeline
 import com.lmy.codec.pipeline.impl.EventPipeline
@@ -71,6 +72,9 @@ class SurfaceX264Encoder(private var format: MediaFormat,
     }
 
     fun encode(buffer: ByteBuffer, rowPadding: Int) {
+
+       // GLHelper.glReadPixels(0,0,0,0,0,0)
+
         val yuv = if (asyn()) cache?.pollCache() ?: return else yuv
         GLHelper.copyToByteArray(buffer, data, getHeight(), getWidth() * 4, rowPadding)
         Libyuv.ConvertToI420(data, yuv, getWidth(), getHeight(), Libyuv.kRotate0)
@@ -78,6 +82,23 @@ class SurfaceX264Encoder(private var format: MediaFormat,
             cache?.offer(yuv)
         } else {
             codec.encode(yuv)
+        }
+
+    }
+
+
+    fun copyToByteArray11(src: ByteBuffer,
+                        dest: ByteArray,
+                        row: Int,
+                        stride: Int,
+                        stridePadding: Int)
+    {
+        val offset = 0;
+        val i = 0;
+        for ( index in 0..row) {
+
+        //memcpy(dest, src + offset + index * stridePadding, stride);
+           // offset += stridePadding;
         }
     }
 

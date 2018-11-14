@@ -12,8 +12,6 @@ import android.media.MediaCodec
 import android.media.MediaFormat
 import android.opengl.EGLContext
 import android.opengl.GLES20
-import com.lmy.codec.egl.CodecEglSurface
-import com.lmy.codec.egl.EglInputSurface
 import com.lmy.codec.encoder.Encoder
 import com.lmy.codec.entity.CodecContext
 import com.lmy.codec.entity.PresentationTimer
@@ -23,6 +21,7 @@ import com.lmy.codec.pipeline.impl.EventPipeline
 import com.lmy.codec.pipeline.impl.GLEventPipeline
 import com.lmy.codec.util.debug_e
 import com.lmy.codec.util.debug_v
+import com.lmy.codec.wrapper.CodecTextureWrapper
 
 
 /**
@@ -41,7 +40,7 @@ class VideoEncoderImpl(var context: CodecContext,
 
     private val outputFormatLock = Object()
     private val bufferInfo = MediaCodec.BufferInfo()
-    private var eglSurface: EglInputSurface? = null
+    private var codecWrapper: CodecTextureWrapper? = null
     private var codec: MediaCodec? = null
     private var mBufferInfo: MediaCodec.BufferInfo = MediaCodec.BufferInfo()
     private var pTimer: PresentationTimer = PresentationTimer(context.video.fps)
@@ -96,8 +95,8 @@ class VideoEncoderImpl(var context: CodecContext,
         }
         pTimer.reset()
         codec!!.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
-        eglSurface = CodecEglSurface.create(codec!!.createInputSurface(), textureId, eglContext)
-        eglSurface?.makeCurrent()
+        codecWrapper = CodecTextureWrapper(codec!!.createInputSurface(), textureId, eglContext)
+        codecWrapper?.egl?.makeCurrent()
         codec!!.start()
         onPreparedListener?.onPrepared(this)
     }
@@ -133,14 +132,14 @@ class VideoEncoderImpl(var context: CodecContext,
     private fun encode() {
         synchronized(mEncodingSyn) {
             pTimer.record()
-            eglSurface?.makeCurrent()
+            codecWrapper?.egl?.makeCurrent()
             GLES20.glViewport(0, 0, context.video.width, context.video.height)
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
             GLES20.glClearColor(0.3f, 0.3f, 0.3f, 0f)
-            eglSurface?.draw(null)
-            eglSurface?.setPresentationTime(if (Long.MIN_VALUE != nsecs)
+            codecWrapper?.draw(null)
+            codecWrapper?.egl?.setPresentationTime(if (Long.MIN_VALUE != nsecs)
                 nsecs else pTimer.presentationTimeUs)
-            eglSurface?.swapBuffers()
+            codecWrapper?.egl?.swapBuffers()
             mDequeuePipeline.queueEvent(Runnable { dequeue() })
         }
     }
@@ -164,10 +163,10 @@ class VideoEncoderImpl(var context: CodecContext,
 //                    debug_v("INFO_TRY_AGAIN_LATER")
                     return false
                 }
-            /**
-             * 输出格式改变，很重要
-             * 这里必须把outputFormat设置给MediaMuxer，而不能不能用inputFormat代替，它们是不一样的，不然无法正确生成mp4文件
-             */
+                /**
+                 * 输出格式改变，很重要
+                 * 这里必须把outputFormat设置给MediaMuxer，而不能不能用inputFormat代替，它们是不一样的，不然无法正确生成mp4文件
+                 */
                 MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
                     debug_v("INFO_OUTPUT_FORMAT_CHANGED")
                     onSampleListener?.onFormatChanged(this, codec!!.outputFormat)
@@ -229,8 +228,8 @@ class VideoEncoderImpl(var context: CodecContext,
         codec!!.stop()
         codec!!.release()
         mPipeline.queueEvent(Runnable {
-            eglSurface?.release()
-            eglSurface = null
+            codecWrapper?.release()
+            codecWrapper = null
         })
         if (!GLEventPipeline.isMe(mPipeline)) {
             mPipeline.quit()

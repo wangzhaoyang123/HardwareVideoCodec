@@ -12,13 +12,13 @@ android {
         targetSdkVersion 26
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
-        buildConfigField "boolean", "ENABLE_LOG", "true"
+
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         ndk {
             stl "stlport_static"
             moduleName "codec"
-            abiFilters "armeabi-v7a", "x86"
+            abiFilters "armeabi-v7a"
         }
         sourceSets.main {
             jni.srcDirs = []
@@ -33,7 +33,6 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            buildConfigField "boolean", "ENABLE_LOG", "false"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

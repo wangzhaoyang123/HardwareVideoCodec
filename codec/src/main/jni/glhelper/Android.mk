@@ -5,9 +5,9 @@ include $(CLEAR_VARS)
 # fix undefined reference to bug
 # LOCAL_ALLOW_UNDEFINED_SYMBOLS := true
 
-LOCAL_SRC_FILES := $(wildcard $(LOCAL_PATH)/*.c)
-LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/*.cpp)
-
+#LOCAL_SRC_FILES := $(wildcard *.c)
+#LOCAL_SRC_FILES += $(wildcard *.cpp)
+LOCAL_SRC_FILES :=Java_com_lmy_codec_helper_GLHelper.c
 # 打印引入的C文件列表
 $(warning $(LOCAL_SRC_FILES))
 

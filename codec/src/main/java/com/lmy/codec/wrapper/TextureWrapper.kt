@@ -4,52 +4,24 @@
  * This source code is licensed under the GPL license found in the
  * LICENSE file in the root directory of this source tree.
  */
-package com.lmy.codec.egl
+package com.lmy.codec.wrapper
 
 import android.graphics.SurfaceTexture
-import android.opengl.EGLContext
 import android.opengl.GLES20
-import android.view.Surface
-import com.lmy.codec.egl.entity.Egl
 import com.lmy.codec.entity.CodecContext
+import com.lmy.codec.entity.Egl
 import com.lmy.codec.helper.GLHelper
 import com.lmy.codec.texture.impl.BaseTexture
 
 /**
  * Created by lmyooyo@gmail.com on 2018/3/26.
  */
-abstract class EglSurface<T> {
-    abstract val name: String
-    internal var surface: T? = null
-    var texture: BaseTexture? = null
-    open var textureId: IntArray? = null
-    private var egl: Egl? = null
+abstract class TextureWrapper(open var surfaceTexture: SurfaceTexture? = null,
+                              var texture: BaseTexture? = null,
+                              open var textureId: IntArray? = null,
+                              var egl: Egl? = null) {
 
     abstract fun draw(transformMatrix: FloatArray?)
-
-    internal fun createEgl(surface: Any?, eglContext: EGLContext?) {
-        egl = Egl(name)
-        if (null != surface) {
-            this.surface = surface as T
-            when (surface) {
-                is Surface -> egl!!.initEGL(surface, eglContext)
-                is SurfaceTexture -> egl!!.initEGL(surface, eglContext)
-                else -> throw RuntimeException("surface must be Surface or SurfaceTexture!")
-            }
-        } else {
-            egl!!.initEGL()
-        }
-    }
-
-    fun getEgl(): Egl {
-        return egl!!
-    }
-
-    fun clear() {
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
-        GLES20.glClearColor(0f, 0f, 0f, 0f)
-        egl?.swapBuffers()
-    }
 
     fun createTexture(target: Int) {
         if (null == textureId) {
@@ -85,21 +57,5 @@ abstract class EglSurface<T> {
     fun updateInputTexture(textureId: IntArray) {
         this.textureId = textureId
         texture?.textureId = textureId
-    }
-
-    fun makeCurrent() {
-        egl?.makeCurrent()
-    }
-
-    fun swapBuffers() {
-        egl?.swapBuffers()
-    }
-
-    fun setPresentationTime(nsecs: Long) {
-        egl?.setPresentationTime(nsecs)
-    }
-
-    fun getEglContext(): EGLContext? {
-        return egl?.eglContext
     }
 }

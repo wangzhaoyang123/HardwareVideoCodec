@@ -51,7 +51,8 @@ JNIEXPORT void JNICALL Java_com_lmy_codec_helper_GLHelper_copyToByteArray
     jbyte *srcBuffer = (*env)->GetDirectBufferAddress(env, src);
     jbyte *destBuffer = (*env)->GetByteArrayElements(env, dest, JNI_FALSE);
     int offset = 0;
-    for (int i = 0; i < row; i++) {
+    int i = 0;
+    for (i = 0; i < row; i++) {
 #ifdef  __ARM__
         if (android_getCpuFamily() == ANDROID_CPU_FAMILY_ARM &&
             (android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON) != 0){//支持NEON

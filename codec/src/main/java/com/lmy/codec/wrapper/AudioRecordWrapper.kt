@@ -4,7 +4,7 @@
  * This source code is licensed under the GPL license found in the
  * LICENSE file in the root directory of this source tree.
  */
-package com.lmy.codec.media
+package com.lmy.codec.wrapper
 
 import android.media.AudioFormat
 import android.media.AudioRecord
@@ -24,13 +24,13 @@ import java.lang.Short.reverseBytes
  * Project Name：HardwareVideoCodec.
  * @author lrlmy@foxmail.com
  */
-class AudioRecorder(var context: CodecContext,
-                    private var bufferSize: Int = 0,
-                    private var record: AudioRecord? = null,
-                    private var thread: Thread? = null,
-                    private var buffer: ByteArray? = null,
-                    private var mStart: Boolean = true,
-                    private var mDeNoise: DeNoise? = null) : Runnable {
+class AudioRecordWrapper(var context: CodecContext,
+                         private var bufferSize: Int = 0,
+                         private var record: AudioRecord? = null,
+                         private var thread: Thread? = null,
+                         private var buffer: ByteArray? = null,
+                         private var mStart: Boolean = true,
+                         private var mDeNoise: DeNoise? = null) : Runnable {
     private val mStartSyn = Any()
     private var onPCMListener: OnPCMListener? = null
     private lateinit var dos: RandomAccessFile

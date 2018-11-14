@@ -4,12 +4,12 @@ LOCAL_PATH := $(call my-dir)
 ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
     include $(CLEAR_VARS)
     LOCAL_MODULE := libyuv
-    LOCAL_SRC_FILES := $(LOCAL_PATH)/lib/armeabi-v7a/libyuv.so
+    LOCAL_SRC_FILES := lib/armeabi-v7a/libyuv.so
     include $(PREBUILT_SHARED_LIBRARY)
 
     include $(CLEAR_VARS)
     LOCAL_MODULE := libx264
-    LOCAL_SRC_FILES := $(LOCAL_PATH)/lib/armeabi-v7a/libx264.so
+    LOCAL_SRC_FILES := lib/armeabi-v7a/libx264.so
     include $(PREBUILT_SHARED_LIBRARY)
 endif
 
@@ -42,9 +42,9 @@ endif
 # endif
 
 LOCAL_MODULE := codec
-LOCAL_SRC_FILES := $(LOCAL_PATH)/Java_com_lmy_codec_x264_X264Encoder.cpp \
-    $(LOCAL_PATH)/X264Encoder.cpp \
-    $(LOCAL_PATH)/Java_com_lmy_codec_helper_Libyuv.cpp \
+LOCAL_SRC_FILES :=Java_com_lmy_codec_x264_X264Encoder.cpp \
+   X264Encoder.cpp \
+   Java_com_lmy_codec_helper_Libyuv.cpp \
 
 ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
     # 采用NEON优化技术
