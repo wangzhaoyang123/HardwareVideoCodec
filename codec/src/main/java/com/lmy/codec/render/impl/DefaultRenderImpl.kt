@@ -92,6 +92,8 @@ class DefaultRenderImpl(var context: CodecContext,
         renderMeasurer.start()
         drawCamera()
         drawFilter()
+		//wang test
+        GLES20.glFinish()
         if (null == screenSurface) return
         screenSurface?.makeCurrent()
         GLES20.glViewport(0, 0, context.viewSize.width, context.viewSize.height)
